@@ -1,0 +1,4 @@
+Options for building the UI:
+- Clojurescript / Reagent / Reframe
+- Plain HTML CSS JS
+- HTMx (https://htmx.org/)

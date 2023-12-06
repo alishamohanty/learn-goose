@@ -1,0 +1,126 @@
+Goose Console
+--------------
+- For adminstrative convinience
+- Authentication will be first class citizen!
+
+API
+----
+
+- Web UI that would provide visual display of jobs, along with end points to update, delete, view jobs
+- Might use additional API over broker like
+		- List all the jobs in the queue etc.
+	(Different UI for different Brokers)
+
+Authentication
+-------
+- This UI should be for adminstrative purpose.
+- Goose should be remodelled so as to integrate authentication.
+- Goose should be extensible to use the Client's authentication system to allow admins to be able to use Goose API.
+- If the client does not have any authentication mechanism, then it should implement some own custom mechanism in order to integrate authentication system.
+
+
+Goose Dashboard
+---------------
+
+	My understanding:
+
+	 - Datadog/Grafana will be used as visualization tool
+	 
+	 - The metric emitted by Goose will be stored in a Data source(InfluxDB, Datadog, Prometheus) as per user's choice.
+
+	 - While creating dashboards in Grafana/Datadog, user will choose the data stores and the template to automatically create dashboards.
+
+	 - Goose repository will contain these JSON Templates.
+
+	 - For specific visualisation platform and data store, there will JSON templates.
+	 - For ex: Grafana + InfluxDB, Datadog Dashboard + Datadog data store etc 
+
+
+This will provide:
+- Visibility around brokers
+- Users should be able to setup monitoring as fast as possible
+- We should build dashboards for popular stores which users can integrate
+- Datadog and Grafana are 2 popular visualisation tools, so we are building bashboards for them 
+
+ UI epic for creating Goose Dashboard involves
+  - Templates creation for various data stores and visualisation tool
+  - Update Goose to emit metrics related to Broker
+  - Documentations involving steps to create these Dashboards
+
+-----
+
+Todos
+-----
+- Remodelling Goose to incorporate authentication
+- Check how other different library incorporates this?
+
+
+Questions:
+----------
+- Why the console and dashboard won't be possible with RabbitMQ as broker?
+	- Atleast the console should be able to connect via the API?
+
+- CONSOLE: What would console show?
+	- Web view served over an API in application server
+	- Wrapper over the GOOSE API (for multiple brokers) to view/edit jobs of type
+		- async
+		- scheduled
+		- batch
+		- periodic
+		- retrying
+		- dead 
+
+- DASHBOARD: What would dashboard show?
+  - Metrics around 
+  	- Job Execution Timings
+  	- Success rates
+  	- Latency
+  	- Queue sizes
+  - Integration with Prometheus to pull data from Broker
+  - BROKER STATS: Will showcase high-level broker stats like
+    - version
+    - uptime
+    - connections
+    - cpu/memory usage (this needs some work!)
+
+--- Ability to integrate Prometheus to be able to pull metrics data from the broker.
+
+More information
+----------------
+Goose will have a flexibility of using exisiting authentication system of the application which uses Goose.
+If it does not have a authentication system, then it should provide some base implementation to incorporate that.
+
+Authentication can be 
+ - exisiting libraries like oauth
+ - session management
+ - cookie management
+ - flash?
+
+(Sidekiq uses session management by default)
+- Goose can provide some default mechanism like cookie store for the session.
+
+(As goose's client, define some way to ask for credentials and store and use them)
+
+https://github.com/sidekiq/sidekiq/wiki/Monitoring
+(See the standalone example here!)
+
+- Question: Do we want to handle proxying the Web UI? (NO?)
+
+- We can suggest what library we can use to ensure restriction on the accessibility to routes.
+- Suggest codebase to incorporate them?
+
+- Goose have a ui server which will be exposed to some port.
+- Accessibility to that port requires authentication.
+- Once authenticated, it will allow to view the console, or else not!
+- session middleware?
+- setup env vars and use them for authentication?
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,82 @@
+Sidekiq
+-------
+Setup sidekiq - (done!) (simple ruby app)
+Setup Sidekiq - () (Rails app)
+
+Going through the docs: 
+-----------------------
+- Ability to create job files to declare functions for this
+
+
+Ent Web UI
+---
+- enables user auntetication
+- Authorization logic goes in the config/routes.rb
+- Authentication library determines how to get access to the current user!
+
+Monitoring
+-----
+- Sidekiq enterprise has ability to monitor memory usage
+	- restart bloated worker processes!
+- The webUI is exposed in route /sidekiq
+- It uses exisiting [Rails session]
+	- Rails uses middleswares for session management like 
+		ActionDispatch::Session::CacheStore
+		ActionDispatch::Session::CookieStore
+		ActionDispatch::Session::MemCacheStore
+- They also enable Sidekiq:Web by itself.
+- It has ability to use among multiple libraries to be used for the authentication.
+  - Rack
+  - Session Storage
+  - Env vars
+  - Google Authentication
+  - Sorcery
+  - AuthLogic
+  - Clearance
+  - Devise
+
+- Sidekiq provides a built in dashboard!
+  - Its a JSON formatted dashboard at /dashboard/stats
+  - Sidekiq 6 has sidekiqmon: prints basic stats to terminal
+
+
+Understanding Sidekiq Code
+-----------------------
+File path: sidekiq/lib/sidekiq/web/application.rb
+API end points for the Web
+
+Line 307: /stats -> they call 'sidekiq_stats'
+				 - Shows the total enqueued, processed, failed, busy etc..
+
+
+https://github.com/sidekiq/sidekiq/blob/ed9e01d427ed0503caa73191e32ff18a86e9f35e/lib/sidekiq/api.rb#L86
+
+sidekiq_stats -> It queries the Broker to fetch the count for processed, failed, scheduled etc
+
+Also calculates the default queue latency for the same.
+
+What does the latency calculates?
+----------
+ - It calculates the difference between the oldest job being enqueued at and current time.
+ - It calcluates the time the oldest job in the default queue has been waiting to be processed.
+ - Good metric to understand load and performance of job processing library
+
+
+Authentication
+--------------
+- Sidekiq's web interface is Rack Application.
+- It can be mounted inside a larger Rails application
+- Ruby on Rails handles the session cookie's creation, encryption and tracking
+- Sidekiq allows for authorization constraints as well.
+
+Devise(a popular authentication solution) is by default used as Sidekiq authentication.
+
+
+
+
+
+
+
+
+
+

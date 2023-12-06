@@ -1,0 +1,185 @@
+All the other Background Job Libraries
+--------------------------------------
+- Sidekiq
+- Faktory
+- JobRunr
+- AWS Batch
+- GcClouds Tasks
+- Chronicle
+- Quartz Scheduler - (UI is Quartz Manager)
+- Simililar Clojure libraries
+	- quartzite
+	- proletarian
+	- yoltq
+	- byplay
+	- monotony
+	- taskmaster
+	- clj-factory
+
+Sidekiq
+-------
+- Job Lifecycle: https://github.com/sidekiq/sidekiq/wiki/Job-Lifecycle
+- Automatic Job retry policy: https://github.com/sidekiq/sidekiq/wiki/Error-Handling#automatic-job-retry
+- LivePoll implementation: https://github.com/sidekiq/sidekiq/blob/062f07a7a5a8fba3f50464681215183de96ad265/web/assets/javascripts/application.js#L105-L139
+
+Playing with Sidekiq
+--------------------
+- The process by default uses 5 threads to start the worker.
+- There is a little delay in the [Processed] number to be updated. 
+
+UI
+---
+- We have to manually refresh the page in order to get the Latest data.
+- The filter works for all the job data, even the job arguments.
+
+Did not like
+------------
+- The tabs and the navbar buttons are doing and linking the same. I think that is unecessary.
+- The buttons[ Retry Now, Delete, Kill] in the LHS of retry works when u select a particular job, or else it does nothing. 
+- Also the retry now, does not do anything if the job is already retrying now.
+- The jobs that are showed in the Scheduled or retry section does not contain/show the Job-Ids rather they prioritise showing [When, Queue, Job, Arguments]. 
+
+
+Questions to Understand Sidekiq / Sidekiq UI
+--------------------------------------------
+ - What is a busy job?
+ 	Currently processing jobs. (When i halt for some time, it goes into the busy job)
+ - Is Dead and Failed same?
+ 	Failed is a transitioned state where the job is being retried. The job never ends up in this state though. How many times any job is retried until its either killed, exhausted or processed completely.
+ - Are the tabs in the dashboard page redirect to the same page in the navbar pages?
+ 	yes.
+ - What is the difference between Kill and Delete?
+ 	Kill: Moves the job from ready to dead queue
+ 	Delete: Destroys the job entirely with no possibility of replay in future
+ - What is the use of the Live Poll?
+    it is used to fetch new data in regular intervals) (implemented here: https://github.com/sidekiq/sidekiq/blob/062f07a7a5a8fba3f50464681215183de96ad265/web/assets/javascripts/application.js#L105-L139
+ - What is TID in busy jobs?
+ 	- Thread ID
+
+Faktory
+-------
+- In Go language
+- Jobs can be executed in any languages
+
+Faktory UI
+----------
+- written in EGO (https://pkg.go.dev/github.com/alash3al/ego#section-readme)
+- Templating language in ego which is transpiled in Go at compile time.
+(Like ejs files in java script)
+- Server related logic goes in web.go (https://github.com/contribsys/faktory/blob/main/webui/web.go)
+- The webui files contains
+	- .ego file contains the html files
+	- .ego.go will contain the go file
+
+
+Inspiration for Goose UI
+--------------
+  - Have a separate Queues section in Navbar
+
+- TODO:
+    - See what the Queues section showcases in Factory/Sidekiq?
+    	Will selecting particular queue from <Queues> lead to jobs that belong to the Queue?
+	- Read the web.go file to understand how Faktory uses its web UI
+	- Understand the architecture of Faktory
+	- Install the Faktory and play around to understand how it works
+	- Quickly ramp up the Wiki
+
+JobRunr
+-------
+https://github.com/jobrunr/jobrunr
+- Background Job processing in JVM
+- Consists of persistent storage
+- Distributed
+- the API calls can be serverless
+- Supported Data stores: RDBMS (Postgres, MySQL, Oracle, SQL, SQLite) or NoSQL(Elastic search, MongoDB, Redis)
+- JobRunr is also fault-tolerant - is an external web service down? No worries, the job is automatically retried 10-times with a smart back-off policy.
+
+JobRunr UI
+----------
+- Made in React
+- UI Sourcecode : https://github.com/jobrunr/jobrunr/tree/c9ebf57260a138a389e887602e280e698caba320/core/src/main/resources/org/jobrunr/dashboard/frontend
+- Use "EventSource" to establish a persistent connection to the WebUI.
+	- The EventSource interface is used to handle a server-sent event. It creates a connection to a server over HTTP.
+	- The URL used to create the EventSource object (process.env.REACT_APP_SSE_URL + "/jobstats") is likely 
+	pointing to an endpoint on the server that streams data using SSE.
+	- The StatsState class and its methods (setStats, addListener, removeListener) indicate that the client is designed to manage a state that gets updated when new data is received.
+- The server has implemented, "Server-Sent Events" to push updates to the clients.
+- Dashboard: 
+	https://github.com/jobrunr/jobrunr/tree/c9ebf57260a138a389e887602e280e698caba320/core/src/main/java/org/jobrunr/dashboard
+	- Webserver: https://github.com/jobrunr/jobrunr/tree/c9ebf57260a138a389e887602e280e698caba320/core/src/main/java/org/jobrunr/dashboard/server
+	- SSE: https://github.com/jobrunr/jobrunr/tree/c9ebf57260a138a389e887602e280e698caba320/core/src/main/java/org/jobrunr/dashboard/sse
+	- UI/model.
+
+
+Inspiration for Goose UI
+----------
+- In Jobs page, have [ Jobs > Queue Name > Type of Job ]
+
+Todo:
+-----
+- Is the page refereshed with jobs changing or the user need to hard refresh?
+ - Since they implemented SSE, i think it should auto refresh.
+- Understand how the webui is implemented in JobRunr (What does backened do so that the jobs changes and eventsource pushlishes them in the frontend)
+	- https://github.com/jobrunr/jobrunr/tree/c9ebf57260a138a389e887602e280e698caba320/core/src/main/java/org/jobrunr/dashboard/sse
+
+
+Chronicle
+---------
+The Web UI is documented here: https://github.com/jhuckaby/Cronicle/blob/master/docs/WebUI.md#web-ui
+Uses all the different packages of pixl-<> framework done by https://github.com/jhuckaby
+The above guy also created Chronicle.
+Its created using Nodejs
+
+AWS Batch
+---------
+
+AWS Batch UI
+------------
+-> Landing page consists of dashboard statistics like 
+	Number of jobs that are Runnable, Running, Succeeded, Failed
+-> Customisable 
+-> Ability to create a job queue from the web ui
+-> Saved the screenshots
+
+Google Cloud Tasks
+------------
+- First class citizen is the Queue.
+- Create a queue, push tasks to the queue.
+- Can open a cloud shell into the task list
+- Does not contain any history of the task
+- In order to create a task, a side pane is opened.
+- When a task is created, it is created in a queue.
+- Then we have to run the task
+	- Either we can select the task and run it by clicking Run Task in RHS of the corner
+	- We can click into the Actions -> Force a task run
+- We can do the following
+  - create HTTP Tasks
+  - task queues
+  		- queues can be filtered
+  		- queues informations can be edited like
+  			- edit
+  			- pause
+  			- delete
+  		- in edit configurations we can edit the following
+  			- rate limit for task disptaches, like
+  				 max dispatches
+  				 max conccurrent dispatches
+  			- retry configurations
+  				max attemptes
+  				max retry duration
+  				min backoff
+  				max backoff
+  					 A task will be scheduled for retry between min backoff and max backoff duration after it fails if the queue specifies that the task should be retried.
+			 - we can enable or disable logging
+ - https://cloud.google.com/tasks/docs/creating-http-target-tasks
+   - programatically, your app can create HTTP Target tasks and can be pushed to the queue
+   - 
+
+
+
+
+
+
+
+
+

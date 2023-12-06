@@ -1,0 +1,330 @@
+Understanding the entrypoint to choose between brokers:
+
+- Ideally an user application will be catering to one broker?
+- It can also locally cater to 2 brokers paralelly? (kind of locally)
+   Like for example locally they can have 2 brokers where goose picks up work from both the brokers and executes them?
+- Are we suggesting we should take a connection url while starting Goose UI to choose which broker the ui will showcase?
+   like a box saying choose a broker, add connection url with autofilled connection url. Once we get that, we will connect to that broker.
+
+   Option1
+   -------
+   Endpoint: /redis
+   Endpoint: /rabbitmq
+   And see all the API
+
+   Options2
+   --------
+   Asks which broker?
+   Takes the url and redirects them to the same ui which caters to both the urls
+
+
+   Option3
+   ------
+   Take the type of broker in the code itself, and redirects to the UI
+
+   -----
+   Conditions:
+   - The same UI will cater to both Redis/RabbitMQ
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Requirement for the UI:
+-----------------------
+For both the brokers
+ - In Progress Queue
+ - Enqueued Jobs
+ - Scheduled Jobs
+ - Batch Jobs
+ - Periodic/Cron Jobs
+ - Dead Jobs
+
+- The UI would be on top of the broker's protocol. With the UI schema telling what features will be incorporated. (may be)
+- Showcase exceptions in the UI
+
+-------------------------------
+Data to be showcased in the Project.
+- Broker Options: Redis, RabbitMQ
+- In-Progress Enqueued Scheduled Periodic Dead (Count/size of them)
+- Option to Poll
+- Queries for enqueued jobs in queue agnostic. So first select a queue, then in the queue, check for the jobs.
+- Landing Page Ideas:
+   - List of all queues?
+   - List of all jobs in default queue? (better since jobs(the primary entity) will be showcased)
+
+- Enqueued Page (Implemented using a list)
+  -------------
+  - Filter by pattern / also by id (provided)
+  - Show all the enqueued jobs (if the pattern-match? returns true for all the case, filter-by-patter will work)
+       
+       (let [pattern-match? (fn [_job] true)
+         limit 50]
+         (enqueued-jobs/find-by-pattern redis-producer "default" pattern-match? limit))
+
+  - Prioritise a queue (move a queue from last to top, how to visually present it?)
+  - Delete (does it accept a list of ids?)
+      - a job (lrem ..)
+      - multiple jobs (have to create a batch to execute multiple lrem commands i.e seq of [[lrem ..] [lrem ..]])
+  - Purge: (delete an entire queue and all of its contents)
+
+   Note
+   ----
+   - Size of Enqueued Job: Count for enqueued is per queue. Inorder to get all the number of enqueued jobs, we need to fetch all the list of queues and add the count of enqueued job per queue and add all of them to get result.
+   - Job details in Enqueued page: The request to fetch only specific details to showcase on the enqueued landing page. When the id is selected then, show case the entire job details.
+   - Filter by Id: check directly
+   - Filter by other keys: We need to check the arg, matches all the properties of the jobs.
+
+   Questions:
+   ----------
+   - How to visually represent to modify the limit for Find by pattern in enqueued jobs?
+   - How to visually represent that a job is prioritised? 
+      (The normal jobs are showcased in the increasing order of the enqueued at), when they are prioritised then the order changes. Simply showing the order how they appear in the response will work.
+   - How to show all the jobs beloging to a queue, via pagination?
+      (We need to write a wrapper over lrange to take start and end and print all the jobs from start to end)
+
+  Features:
+  ---------
+  - Pagination by 10
+
+
+  Individual Job's Page
+  ---------------
+  Sample Job: {:id "fccb77e3-c1e0-47ef-a7d4-7e5a34448afc",
+               :execute-fn-sym goose.demo/my-fn,
+               :args ("foo" :bar),
+               :queue "default",
+               :ready-queue "goose/queue:default",
+               :retry-opts {:max-retries 27,
+                           :retry-delay-sec-fn-sym goose.retry/default-retry-delay-sec,
+                           :retry-queue nil,
+                           :error-handler-fn-sym goose.retry/default-error-handler,
+                           :death-handler-fn-sym goose.retry/default-death-handler,
+                           :skip-dead-queue false},
+               :enqueued-at 1701329285639}
+
+   In an enqueued individual job's page: We can add option to prioritise, delete a job (Do we want to edit a job?)
+
+  Scheduled Page (Implemented using zset)
+  --------------
+  - Size will be straight forward.
+  - All the jobs can be viewed there itself.(need to implement)
+  - Jobs can be pushed to the respective queues, when they are prioritised.
+  - Jobs can be deleted -> removed from the scheduled queue
+  - All the jobs can be deleted by deleting the queue
+
+  Questions:
+  ----------
+  - Do we want to have a counter for number of scheduled jobs?
+   If yes, size of scheduled jobs
+  - How do we plan to separate retried jobs and scheduled jobs? (Need to check)
+  - How to execute pagination? 
+    (they offer querying by offset)
+  - When we prioritise, a scheduled job then its executed instantly or pushed to be executed soon?
+      Pushed to the top of enqueued_jobs
+
+   - Individual page will have options show details
+   Sample Scheduled JOb: {:id "1fa427cb-a9fc-4173-826f-40773f459945",
+                          :execute-fn-sym goose.demo/my-fn,
+                          :args ("foo" :bar),
+                          :queue "default",
+                          :ready-queue "goose/queue:default",
+                          :retry-opts {:max-retries 27,
+                                       :retry-delay-sec-fn-sym goose.retry/default-retry-delay-sec,
+                                       :retry-queue nil,
+                                       :error-handler-fn-sym goose.retry/default-error-handler,
+                                       :death-handler-fn-sym goose.retry/default-death-handler,
+                                       :skip-dead-queue false},
+                          :enqueued-at 1701329227427,
+                          :schedule-run-at 1701329237419}
+
+  Periodic Page
+  -------------
+  - can view all the cron entries
+  - can view the new entries to be executed next
+  - filter cron-entry by name of the periodic job
+  - delete a cron-entry
+  - purge a cron-entry
+  - Detailed view of a cron entry
+      get the value by the cron name in the cron-entries queue and show all the details.
+
+Sample Cron Entry:
+{:cron-name "my-periodic-job-1",
+ :cron-schedule "*/3 * * * *",
+ :timezone "US/Pacific",
+ :job-description {:execute-fn-sym goose.demo/my-fn,
+                   :args (:static "arg"),
+                   :queue "default",
+                   :ready-queue "goose/queue:default",
+                   :retry-opts {:max-retries 27,
+                                :retry-delay-sec-fn-sym goose.retry/default-retry-delay-sec,
+                                :retry-queue nil,
+                                :error-handler-fn-sym goose.retry/default-error-handler,
+                                :death-handler-fn-sym goose.retry/default-death-handler,
+                                :skip-dead-queue false}}}
+
+
+  Batch
+  ------
+  - Batch job can belong to different statuses: enqueued / retry / failed /dead
+  - An individual batch, we can show the following details:
+      callback-symb
+      status
+      linger-sec
+      total
+      ready-queue
+  - We can also get the enqueued .... if present for all the batches
+  - And the batch/enqueued page will show all the job/ids that are in that state.
+      - Upon clicking the job/ids we can show the job details etc.
+
+  Questions: 
+  ----------
+   - Can we view batch jobs?
+      - We can get all the jobs having the pattern goose/batch:<id>
+
+  Dead Jobs
+  ---------
+   - See the size of dead jobs
+   - See all the dead jobs
+   - Pop: Remove a oldest dead job
+   - Replay a dead job: By pushing it to a queue to be picked up later by the workers
+   - Replay n jobs: Might not be helpful for the UI
+   - Delete: Delete a job
+   - Delete older than: Add a time filter to delete all the jobs
+   - Purge: Remove the entire dead jobs queue
+   When selecting a job you can definitely view a detailed view
+     In the detailed view we can
+      - delete a job
+      - replay a job
+
+   Questions:
+   ----------
+   - Can we select multiple jobs and replay them? (We can try to send multtiple replay query as a batch)
+   - Delete multiple jobs? (Batch?)
+
+
+Questions/ Introspection:
+------------------------
+To Akshat/Srihari
+------------------
+   - Do we need to create new apis to showcase infos like
+      - Number of jobs in Progress Queue?
+   - Do we want to showcase information like
+      - How many process are being processed?
+      - How many are enqueued?
+      - scheduled
+   - How would we want to update the data? (Polling, Server-side events, Webhooks)
+   - Do we want to update the job's data which are enqueued?
+   - Do we want to show data for batch jobs?
+     - Do we want to show data for all the states of a batch like enqueued, retrying, successful, dead?
+     - Do we want to show batch information?
+
+
+Self 
+----------
+ - Do we need to separate Scheduled Jobs as a Navbar tab or a Homepage tab? 
+      (Jobrunr has it as a new tab)
+ - How to combine enqueued jobs and queues. (How sidekiq does is consfusing). Can we simplify it?
+ - Do we want ability to configure broker settings like
+   - how many times jobs should be retried? (Will it be possible)
+   - failure strategy
+   - time dead jobs will be removed from the broker's memory
+ - How can we simplify the ui to opt for retry, kill for specific jobs only?
+ - Do we want to showcase dead jobs count in store?
+ - Do we want to show retries? Since we can have retry queue to prioritise retries. But without prioratisation  an enqueued job is tried for the first time is differentiated from the retried job through retry count. Do we want to showcase that? A retried job is scheduled to be retried later and pushed to scheduled queue. Should we separate them? (Need to confirm this before asking)
+
+
+TODOs
+-----
+- Goose can create jobs in multiple queues. Check which APIs allow to insert the queues in different queues?
+- How to showcase the all the jobs that belong to different queues. Do we have a drop down?
+   - Job Runr has implemented for multiple queues but with side bar.
+   - Having similar sidebar does not make sense since Goose can have multiple queues which can lead the sidebar bloating.
+   Options:
+   --------
+    - Have a drop down to select the type queue to view jobs that reside in the queue
+- Understand how to separate the queues and different type of jobs.
+  - Does every type of job can belong to a specific queue?
+  - Which type of job is predominant though?
+  - Do we want to visualise jobs based on queued?
+  - Understand what can be done? as part of Goose
+- We can add i icon to explain about each type of queue?
+
+
+UI Design brainstorm
+--------------------
+Sample 1:
+  Lefthand collapsible side pane would have 2 options. 
+   Home and Brokers. 
+  Brokers pane would open to the number of brokers it support.
+  When the brokers would be open, it would tabs for Enqueued, Scheduled, Batch, Periodic, Dead in the top Navbar
+
+Sample 2:
+   The logo would be home page.
+   In the right hand side corner there will be multiple options for broker and the user have to select one.
+   When the broker is selected, it would open the same landing page with tabs for Enqueued, Scheduled, Batch, Periodic, Dead (similar to sidekiq)
+
+ Research
+ --------
+ - What are the features of the jobs in Goose that will be showcased. For all the tabs of the jobs make a list of what are the elements it will be showcased. (done)
+- How do we want to showcase that the jobs count have changed?
+  - What are the various mechanisms for this? (done)
+  - Do we want to showcase the exact data always or user need to hard refresh to fetch the new details?
+     Hard refresh might be a better, since the view won't change while the user is seeing.
+  - Since the processed data will be deleted from the queue, does it make sense to remove as soon as the data changes happen? Or users need to hard referesh for the changed? 
+     I think its better to poll or do it when its required to hard refresh. 
+
+
+ Add in the document
+ -------------------
+ - Tests
+    - Add tests to check if Fake Job is able to showcase in the UI(inspired from factory's tests)
+
+
+----Final-----
+What are the additional API that I need to build?
+---
+- Enqueued queue: Get jobs from enqueues queue usinf start stop command (for pagination)
+- Scheduled queue: Get jobs from "goose/queue:scheduled-jobs" using start stop command (for pagination)
+- API to view all the batches?
+- Api to view all the jobs with a particular states in a batch. Like all the jobs that belong to batch b1 with enqueued state, b1, dead state, b2 retry state etc
+- API to view all the batch metadata information
+
+
+Figure out
+----------
+- Enqueued Queue: 
+  - Delete multiple jobs? (how to multiple commands)
+  - Get count for all the queues gotten from (list-all-queues)
+  - How to add Visual button to limit filter result
+  (Or how to co-ordinate the pagination with the filter by pattern's limit).
+
+- Scheduled Page:
+  - How to differentiate jobs that are scheduled for retries and that are actually scheduled!
+  - Delete multiple scheduled jobs
+- Figure out a way to select multiple dead jobs and retry them? Can we batch the query and send the ids to be retried?
+
+
+
+

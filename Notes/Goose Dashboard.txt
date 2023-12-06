@@ -1,0 +1,35 @@
+Goose Dashboard
+----------------
+
+There would be basic templates on top of which we could modify them
+We would have
+Sample Base Templates:
+  - What would the templates contain?
+  	- Data store?
+  	- What type of graphical representation to showcase?
+  		Example:
+  		- Graph: Total Jobs Processed
+  		- Type: Line Graph
+  		- Metrics: Total count of jobs processed over time
+  		- X Axis: Jobs count 
+  		- Y Axis: Time
+
+Assumption 1
+------------
+Goose has its own Dashboard similar to Grafana
+
+- It will have a Promethus template for Goose Metrics Data
+- It will have a InfluxDB template for Goose Metrics
+- It will have a Datadog template for Goose Metrics
+
+It will take the url connection for Promethus/Datadog/InfluxDB with contains the goose metrics data.
+
+
+Assumption 2
+------------
+Goose uses it Grafana as its Dashboard.
+It imports the json for various data source for goose format.
+
+Tagline: A ready-to-use dashboard for Goose metrics.
+
+See this: https://kyverno.io/docs/monitoring/bonus-grafana-dashboard/

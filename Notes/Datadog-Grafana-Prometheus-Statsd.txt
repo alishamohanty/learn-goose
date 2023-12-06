@@ -1,0 +1,138 @@
+Learnings
+----------
+ 
+	Datadog and Grafana Dashboard
+	-----------------------------
+	What is data-dog?
+	- Cloud Monitoring as a service.
+
+	What is grafana?
+	- Popular open source tool for montioring and observability and is often used for creating dashboards
+	- It connects with the data source (like InfluxDB or Prometheus), grafana can use them to visualise the data.
+	- Grafana also has alerting features
+	- Ex: Grafana Dashboard
+
+	What is Prometheus?
+	 - open source monitoring and alerting toolkit, used for data model and query language
+	 - time series data: collects and stores data as time series i.e each data is stored as timestamp
+	 - PromQL: query language that lets user select and aggregate data in real time
+	 	- creates complex queries
+	 - Pull data model over HTTP: scrapes metrics from instrumented jobs 
+	 - Provides a basic UI for visualising data
+	 - Also provides service discovery feature, alerting 
+
+	How all of this stich together with statsd?
+	 Statsd + Prometheus
+	 -------------------
+	 - Statsd role is for metrics aggreagtion.
+	 - Prometheus provides a "StatsD exporter" 
+	 - This can act as a bridge btn StatsD and Prometheus
+	 - StatsD exporter: It receives metrics is StatsD format, translates to Prometheus format, and expose them to be scraped by Prometheus.
+	 - Configure StatsD exporter to listen for StatsD metrics and configure Prometheus to scrape metrics from the StatsD exporter
+	 - https://github.com/prometheus/statsd_exporter
+
+	 Prometheus + Grafana
+	 --------------------
+	 - In grafana configure Prometheus as a data source, by mentioning the URL
+	 - While creating a dashboard or Panel in Grafana, queries are written in PromQL
+	 - Grafana sends these queries to Prometheus which returns the requested data
+	 - Grafana can refresh the data at regular intervals, providing near real-time monitoring capabilities.
+
+
+Metrics
+-------
+Key: Express the what? like http_response_time 
+Value: Express the value of the what? like 200, 400 in ms
+Tags: additional annotations or labels: status_code:200, or server:server1 etc
+
+
+Statsd
+------
+- What is statsd?
+  It is network daemon that helps in collecting and aggregative metrics such as counters, gauge, timers, sets.
+
+  Application without statsd:
+  ----------
+  Direct monitoring system: 
+  	App is integrated directly with monitoring system. Each time it needs to log metric it would call the api.
+  Latency:
+  	If the call is made over network, could add additonal latency
+  High Network Traffic:
+  	If the application is busy, it generates a lot of metrics, thus montitoring would have high traffic
+  App might need own aggregation:
+  Complexity in scaling:
+
+
+  Application with statsd:
+  ----------
+  Non blocking metric collection: minimise the impact on metric collection
+  Aggregation and Efficiency: aggregation metrics in memory, less computational load
+  Decoupled Monitoring: send monitoring info to statsd, batches and processed periodically by statsd, thus simplifies application architecture
+  Scalability: Can handle high volume of incoming metrics
+
+  What is sample rate in statsd?
+  ------------------------------
+  The sample rate feature in StatsD is a powerful way to efficiently handle metrics for high-frequency events.
+  sample rate ranges from 0 to 1.
+  for a sample rate x, for m number of requests, m*x (lesser than m since x is <1) number of requests are actually sent to statsd server, to decrease the bombardment. Then from the m*x value it receives along with x value, it divides x to get actual number of value ie. m.
+  Note: Statsd server receives (m*x) requests.  Sample rate is used by client.
+
+
+  How statsd works?
+  ------------------
+  - apps send metrics to statsd using a client library. They are sent as simple formatted strings over UDP or TCP
+  - statsd server listens to a UDP port and receives metrics sent by app clients. it aggregates this metrics over some time interval(configurable).
+  - the information is
+  - during the interval, it
+  	- sums counters
+  	- average timers
+  	- record gauges
+  	- count unique element in sets
+  - after the interval time ends, it flushes the aggregated data to backend storage and visualization system
+  - Example: backends: Graphite, Prometheus, InflusxDB
+  - These backends store the data for analysis and create visualisations like graphs and charts
+
+
+  High level diagram
+  ------------------
+  Application(client) -> Statsd Server -> Backend(graphite)
+
+  How is it incorporated in Goose?
+  How it will help in enabiling the dashborad?
+
+Grafana
+-------
+
+In Grafana connections -> data sources -> prometheus -> import dashboard
+
+Search dashboards from here: https://grafana.com/grafana/dashboards/
+
+https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/view-dashboard-json-model/
+
+A dashboard in Grafana is represented by a JSON object, which stores metadata of its dashboard. Dashboard metadata includes dashboard properties, metadata from panels, template variables, panel queries, 
+
+This json file for Dashboard consist of the following things:
+
+- Input definitions: Inputs required for dashboard like data source name, refering to what type of server like Prometheus, Redis etc
+
+- Requirement Specifications: Specifies type of panel that needs to be used. (Ex: graph, singlestat, table) and version of datasource and the grafana that are compatible with.
+
+- Annotations: Add rich contextual information for graphs and panels and the configuration itself?
+
+
+- General Dashboard Settings:
+ like description, id, links, hide controls etc.
+
+- Dashboard Rows and Panels:
+  Consists if rows
+  Rows consists panels
+  Panels: Display specific metric or data visualization
+
+-templating:
+ 
+ ARRAY OF TEMPLATE VARIABLES
+
+Migrate Datadog dashboards to Grafana but for Enterprise stack
+
+https://grafana.com/docs/plugins/grafana-datadog-datasource/latest/hosted/
+

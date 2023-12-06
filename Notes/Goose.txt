@@ -1,0 +1,44 @@
+Understanding Goose
+-------------------
+- After prioritising, the enqueued_at of a job does not change.
+- Purge: Delete an entire queue
+- A queue name in scheduled job is used to push the job to that specific queue when enqueued
+- Failed jobs go to the scheduled queue to be retried again:
+     {:id "ab458c03-b1bd-4e91-9546-95feaf1b7c17",
+	  :execute-fn-sym goose.demo/wait-and-throw,
+	  :args (5),
+	  :queue "default",
+	  :ready-queue "goose/queue:default",
+	  :retry-opts {:max-retries 27,
+	               :retry-delay-sec-fn-sym goose.retry/default-retry-delay-sec,
+	               :retry-queue nil,
+	               :error-handler-fn-sym goose.retry/default-error-handler,
+	               :death-handler-fn-sym goose.retry/default-death-handler,
+	               :skip-dead-queue false},
+	  :enqueued-at 1701344323381,
+	  :state {:error "java.lang.ClassCastException: class java.lang.Class cannot be cast to class java.lang.Throwable (java.lang.Class and java.lang.Throwable are in module java.base of loader 'bootstrap')",
+	          :last-retried-at 1701344410353,
+	          :first-failed-at 1701344365468,
+	          :retry-count 1,
+	          :retry-at 1701344433359}}
+- There are cron schdules and cron entries in Goose
+  (I have only worked around cron entries), try to play around cron schedules
+- DeadJobs: Fully exhausted retries jobs are in dead 
+jobs
+- cron entry: where the jobs reside in with keys as name of the cron jobs
+- cron schedules: The job can be scheduled multiple times, which is scheduled by pusing it in cron-schedule queue with a next-run-epoch-ms score in a sorted set.
+ From this schedules it is picked up and pushed to ready queues and picked up by worker.
+Example: `zrange "goose/queue:cron-schedules" 0 -1 WITHSCORES`
+1) "my-periodic-job-1"
+2) "1701367920000"
+3) "my-periodic-job-2"
+4) "1701367920000"
+
+TODO
+----
+ - Enlist all the information a job has and what information can be showcased in the UI
+
+
+Questions
+---------
+- Can we requeue a successful job? - (No, since we remove the jobs from the ready queue once its successful)

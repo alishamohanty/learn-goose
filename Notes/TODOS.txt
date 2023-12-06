@@ -1,0 +1,19 @@
+TODOS:
+-------
+
+
+To be Figure out (by me)
+------------------------
+- Enqueued Queue: 
+  - Delete multiple jobs? (how to multiple commands)
+  - Get count for all the queues gotten from (list-all-queues)
+  - How to add Visual button to limit filter result
+  (Or how to co-ordinate the pagination with the filter by pattern's limit).
+
+- Scheduled Page:
+  - How to differentiate jobs that are scheduled for retries and that are actually scheduled!
+  - Delete multiple scheduled jobs
+- Figure out a way to select multiple dead jobs and retry them? Can we batch the query and send the ids to be retried?
+
+- Check with Akshat if its okay to build additional APIs mentioned in Requirements doc?
+

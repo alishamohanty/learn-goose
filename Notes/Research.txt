@@ -1,0 +1,48 @@
+Questions to Akshat/Srihari:
+--------------------
+
+Enqueued
+--------
+- Filter search, should it check all the keys in the goose?
+  no, the keys will be selected by user in the ui. check updated ui
+- The default view will have one queue selected with jobs data present in the queue or no job data?
+  should have one queue selected by default and showcase its data
+
+Scheduled
+---------
+- Do we show both scheduled-at and enqueued-at?
+  yes
+- Do we show countdown for the job to be enqueued or scheduled-at?
+  yes
+- Do we select multiple entries to be prioritised at once(to be made another endpoint) or allow one job to be prioritised at once(current design in mockup)?
+  yes
+- Where to place the Prioritise/Delete button in the page(Top or bottom)?
+ top
+- Do u think id is something to be showed in the table(sidekiq does not)?
+ yes
+ 
+
+Periodic
+--------
+- Do you want to delete the Cron job from the table itself?
+  yes
+- The args in the Job description (for :static :value), will it be okay if it is comma separated values?
+  yes, thats how sidekiq shows
+- What's your take on making Job description as a part of table?
+  yes. When the information is long, the table would grow as well. Or we can have a scroller(if possible)
+
+
+Batch
+-----
+- Do we need to show all the data in a batch metadata?
+  - Yes ?
+
+- Do we want to showcase the data as it is or do we want to have a label? 
+	Like Callback-fn-symbol -> Callback function symbol
+	     Linger-sec         -> Linger <time>sec
+
+	Have a human readable form. like callback function symbol
+- (Replace the - with space?) or have a label mapping
+
+
+

@@ -7,7 +7,6 @@ Going through the docs:
 -----------------------
 - Ability to create job files to declare functions for this
 
-
 Ent Web UI
 ---
 - enables user auntetication
@@ -70,13 +69,4 @@ Authentication
 - Sidekiq allows for authorization constraints as well.
 
 Devise(a popular authentication solution) is by default used as Sidekiq authentication.
-
-
-
-
-
-
-
-
-
 

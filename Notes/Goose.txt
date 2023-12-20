@@ -1,9 +1,135 @@
 Understanding Goose
 -------------------
+Enqueued
+----------
+Type: list | queue
+
+- Prioritise moves the job to the begining of queue
 - After prioritising, the enqueued_at of a job does not change.
-- Purge: Delete an entire queue
-- A queue name in scheduled job is used to push the job to that specific queue when enqueued
-- Failed jobs go to the scheduled queue to be retried again:
+
+Scheduled 
+---------
+- Queue name in scheduled job is where the job is pushed when ready to be executed 
+
+Periodic
+--------
+Type: Hash
+
+Args of Job Description is a persistent Vector:
+Can be represented as Comma separated value (as used in sidekiq)
+
+- cron entry: where the jobs reside in with keys as name of the cron jobs
+- cron schedules: The job can be scheduled multiple times, which is scheduled by pusing it in cron-schedule queue with a next-run-epoch-ms score in a sorted set.
+
+- From this schedules it is picked up and pushed to ready queues and picked up by worker.
+Example: `zrange "goose/queue:cron-schedules" 0 -1 WITHSCORES`
+1) "my-periodic-job-1"
+2) "1701367920000"
+3) "my-periodic-job-2"
+4) "1701367920000"
+
+Batch
+-----
+- Sample Data:
+{:linger-sec 86400,
+ :dead 0,
+ :enqueued 0,
+ :queue "default",
+ :retrying 0,
+ :total 2,
+ :success 2,
+ :retry-opts {:max-retries 27,
+              :retry-delay-sec-fn-sym goose.retry/default-retry-delay-sec,
+              :retry-queue nil,
+              :error-handler-fn-sym goose.retry/default-error-handler,
+              :death-handler-fn-sym goose.retry/default-death-handler,
+              :skip-dead-queue false},
+ :status :success,
+ :id "63fb54f4-1fb4-4092-9881-3fca2b180f63",
+ :callback-fn-sym goose.demo-redis/my-callback,
+ :created-at 1702145899542,
+ :ready-queue "goose/queue:default"}
+
+
+ {:linger-sec 86400,
+ :dead 0,
+ :enqueued 0,
+ :queue "default",
+ :retrying #error{:cause "WRONGTYPE Operation against a key holding the wrong kind of value",
+                  :data {:prefix :wrongtype},
+                  :via [{:type clojure.lang.ExceptionInfo,
+                         :message "WRONGTYPE Operation against a key holding the wrong kind of value",
+                         :data {:prefix :wrongtype},
+                         :at [taoensso.carmine.protocol$get_unparsed_reply invokeStatic "protocol.clj" 143]}],
+                  :trace [[taoensso.carmine.protocol$get_unparsed_reply invokeStatic "protocol.clj" 143]
+                          [taoensso.carmine.protocol$get_unparsed_reply invoke "protocol.clj" 119]
+                          [taoensso.carmine.protocol$eval8852$get_parsed_reply__8853 invoke "protocol.clj" 207]
+                          [taoensso.carmine.protocol$execute_requests$fn__8888 invoke "protocol.clj" 318]
+                          [clojure.lang.PersistentVector reduce "PersistentVector.java" 343]
+                          [clojure.core$reduce invokeStatic "core.clj" 6885]
+                          [clojure.core$reduce invoke "core.clj" 6868]
+                          [taoensso.carmine.protocol$execute_requests invokeStatic "protocol.clj" 316]
+                          [taoensso.carmine.protocol$execute_requests invoke "protocol.clj" 293]
+                          [taoensso.carmine.protocol$_with_replies invokeStatic "protocol.clj" 351]
+                          [taoensso.carmine.protocol$_with_replies invoke "protocol.clj" 337]
+                          [goose.brokers.redis.batch$get_batch$fn__10817$fn__10818 invoke "batch.clj" 48]
+                          [goose.brokers.redis.batch$get_batch$fn__10817 invoke "batch.clj" 48]
+                          [goose.brokers.redis.batch$get_batch invokeStatic "batch.clj" 48]
+                          [goose.brokers.redis.batch$get_batch invoke "batch.clj" 45]
+                          [goose.brokers.redis.api.batch$status invokeStatic "batch.clj" 9]
+                          [goose.brokers.redis.api.batch$status invoke "batch.clj" 8]
+                          [goose.demo_redis$eval12012 invokeStatic "demo_redis.clj" 2]
+                          [goose.demo_redis$eval12012 invoke "demo_redis.clj" 189]
+                          [clojure.lang.Compiler eval "Compiler.java" 7194]
+                          [clojure.lang.Compiler eval "Compiler.java" 7149]
+                          [clojure.core$eval invokeStatic "core.clj" 3215]
+                          [clojure.core$eval invoke "core.clj" 3211]
+                          [nrepl.middleware.interruptible_eval$evaluate$fn__968$fn__969
+                           invoke
+                           "interruptible_eval.clj"
+                           87]
+                          [clojure.lang.AFn applyToHelper "AFn.java" 152]
+                          [clojure.lang.AFn applyTo "AFn.java" 144]
+                          [clojure.core$apply invokeStatic "core.clj" 667]
+                          [clojure.core$with_bindings_STAR_ invokeStatic "core.clj" 1990]
+                          [clojure.core$with_bindings_STAR_ doInvoke "core.clj" 1990]
+                          [clojure.lang.RestFn invoke "RestFn.java" 425]
+                          [nrepl.middleware.interruptible_eval$evaluate$fn__968 invoke "interruptible_eval.clj" 87]
+                          [clojure.main$repl$read_eval_print__9206$fn__9209 invoke "main.clj" 437]
+                          [clojure.main$repl$read_eval_print__9206 invoke "main.clj" 437]
+                          [clojure.main$repl$fn__9215 invoke "main.clj" 458]
+                          [clojure.main$repl invokeStatic "main.clj" 458]
+                          [clojure.main$repl doInvoke "main.clj" 368]
+                          [clojure.lang.RestFn invoke "RestFn.java" 1523]
+                          [nrepl.middleware.interruptible_eval$evaluate invokeStatic "interruptible_eval.clj" 84]
+                          [nrepl.middleware.interruptible_eval$evaluate invoke "interruptible_eval.clj" 56]
+                          [nrepl.middleware.interruptible_eval$interruptible_eval$fn__999$fn__1003
+                           invoke
+                           "interruptible_eval.clj"
+                           152]
+                          [clojure.lang.AFn run "AFn.java" 22]
+                          [nrepl.middleware.session$session_exec$main_loop__1067$fn__1071 invoke "session.clj" 202]
+                          [nrepl.middleware.session$session_exec$main_loop__1067 invoke "session.clj" 201]
+                          [clojure.lang.AFn run "AFn.java" 22]
+                          [java.lang.Thread run "Thread.java" 833]]},
+ :total 2,
+ :success 2,
+ :retry-opts {:max-retries 27,
+              :retry-delay-sec-fn-sym goose.retry/default-retry-delay-sec,
+              :retry-queue nil,
+              :error-handler-fn-sym goose.retry/default-error-handler,
+              :death-handler-fn-sym goose.retry/default-death-handler,
+              :skip-dead-queue false},
+ :status :success,
+ :id "63fb54f4-1fb4-4092-9881-3fca2b180f63",
+ :callback-fn-sym goose.demo-redis/my-callback,
+ :created-at 1702145899542,
+ :ready-queue "goose/queue:default"}
+
+Dead 
+-----
+- DeadJobs: Fully exhausted retries jobs
+- Dead jobs go to the scheduled queue to be retried again:
      {:id "ab458c03-b1bd-4e91-9546-95feaf1b7c17",
 	  :execute-fn-sym goose.demo/wait-and-throw,
 	  :args (5),
@@ -21,24 +147,54 @@ Understanding Goose
 	          :first-failed-at 1701344365468,
 	          :retry-count 1,
 	          :retry-at 1701344433359}}
-- There are cron schdules and cron entries in Goose
-  (I have only worked around cron entries), try to play around cron schedules
-- DeadJobs: Fully exhausted retries jobs are in dead 
-jobs
-- cron entry: where the jobs reside in with keys as name of the cron jobs
-- cron schedules: The job can be scheduled multiple times, which is scheduled by pusing it in cron-schedule queue with a next-run-epoch-ms score in a sorted set.
- From this schedules it is picked up and pushed to ready queues and picked up by worker.
-Example: `zrange "goose/queue:cron-schedules" 0 -1 WITHSCORES`
-1) "my-periodic-job-1"
-2) "1701367920000"
-3) "my-periodic-job-2"
-4) "1701367920000"
-
-TODO
-----
- - Enlist all the information a job has and what information can be showcased in the UI
-
 
 Questions
 ---------
-- Can we requeue a successful job? - (No, since we remove the jobs from the ready queue once its successful)
+- Can we requeue a successful job? - 
+  (No, since we remove the jobs from the ready queue once its successful)
+- Can we enlist all the jobs that are in the preservation queue/ in-progress queue?
+  The key of the in-progress-queue consists of <goose/in-progress-queue:<queue-name>:<hostname>>
+  We can't find keys with specific patterns, hence cann't find the jobs
+- What was the reason, there were different in-progress queue for different queues?
+	Jobs belong to different queue, and it does not make sense to have one in-progress queue for all the jobs.
+- What was the reason the hostname was appended?
+- Is it possible to get all the in-progress queue in the ui?
+  Not required
+
+-----------------------------------------------------------------------------------------
+RabbitMQ
+--------
+Sample Dead job: 
+
+{:id "fa26a68f-be70-4ec4-89d8-61c20febf241",
+ :execute-fn-sym goose.demo-rabbitmq/illegal-fn,
+ :args (10),
+ :queue "default",
+ :ready-queue "goose/queue:default",
+ :retry-opts {:max-retries 1,
+              :retry-delay-sec-fn-sym goose.retry/default-retry-delay-sec,
+              :retry-queue nil,
+              :error-handler-fn-sym goose.retry/default-error-handler,
+              :death-handler-fn-sym goose.retry/default-death-handler,
+              :skip-dead-queue false},
+ :enqueued-at 1702982724002,
+ :state {:error "java.lang.ArithmeticException: Divide by zero",
+         :last-retried-at 1702982745025,
+         :first-failed-at 1702982724006,
+         :retry-count 1,
+         :died-at 1702982745025}}
+
+
+What can be showed in the Enqueued page?
+----
+- List all the queues with delete queue option
+- List the queues with size and delete queue option
+
+What can be showed in the Dead jobs page?
+----
+- Show the number of dead jobs
+- Option to delete the dead job queue
+----- do we need to showcase this?
+- Pop option: Pop button, then show the job data that is popped
+- Replay-n-jobs: A text field to pass number of jobs to be replayed
+

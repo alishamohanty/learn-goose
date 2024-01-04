@@ -4,16 +4,17 @@ Enqueued
 ----------
 Type: list | queue
 
-- Prioritise moves the job to the begining of queue
+- Prioritise: moves the job to the begining of queue
 - After prioritising, the enqueued_at of a job does not change.
 
 Scheduled 
 ---------
+Type: sorted set
+
 - Queue name in scheduled job is where the job is pushed when ready to be executed 
 
 Periodic
 --------
-Type: Hash
 
 Args of Job Description is a persistent Vector:
 Can be represented as Comma separated value (as used in sidekiq)
@@ -151,12 +152,13 @@ Dead
 Questions
 ---------
 - Can we requeue a successful job? - 
-  (No, since we remove the jobs from the ready queue once its successful)
+  - No, since we remove the jobs from the ready queue once its successful
 - Can we enlist all the jobs that are in the preservation queue/ in-progress queue?
-  The key of the in-progress-queue consists of <goose/in-progress-queue:<queue-name>:<hostname>>
-  We can't find keys with specific patterns, hence cann't find the jobs
+  - The key of the in-progress-queue consists of 
+  <goose/in-progress-queue:<queue-name>:<hostname>>
+  - We can't find keys with specific patterns, hence can't find the jobs
 - What was the reason, there were different in-progress queue for different queues?
-	Jobs belong to different queue, and it does not make sense to have one in-progress queue for all the jobs.
+	- Jobs belong to different queue, and it does not make sense to have one in-progress queue for all the jobs.
 - What was the reason the hostname was appended?
 - Is it possible to get all the in-progress queue in the ui?
   Not required

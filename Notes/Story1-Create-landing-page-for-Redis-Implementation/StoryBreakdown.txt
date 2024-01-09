@@ -8,7 +8,7 @@ Requirements: Server that would visually showcase the number of
 
 Different ways of writing Goose UI involves:
 
-Approach 1
+Approach 1 (https://github.com/alishamohanty/goose/commit/bba8fb8b2217e90d36499b98a85d7e859771ad4b)
 -------
 - stringified html returned as response
 - inorder to have dynamic data, the html would be broken down at proper sections to capture the data.
@@ -31,7 +31,7 @@ cons
 		- host the js somewhere and pass the link in the script tag
 		- while serving js from the same server, use static file loading and load the js file.
 	
-Approach 2
+Approach 2 (https://github.com/alishamohanty/goose/commit/55263ee430982bf5d2ee631ba3e494b9cf4e3f1e)
 --------
 - Different HTML file
 - Since the file is directly loaded, adding dynamic data to the file if not possible unless a template engine is used.
@@ -46,7 +46,7 @@ Approach 2
 - we would write the code in the clojure with the dynamic data and before returing response to the client convert into html.
 
 
-Approach 3
+Approach 3 (https://github.com/alishamohanty/goose/commit/c6f1dbd16495834566443cad13cb0d726b10601e)
 -------
 - Hiccup + css + js/cljs
 
@@ -84,7 +84,7 @@ cons
 - Framework like reagent will automatically re-render on component change, where as incase of hiccup the state updates needs to be manually handled or reload the page.
 
 
-Approach 4
+Approach 4 (https://github.com/alishamohanty/goose/commit/dc8ae73388ae4c7ca6bf41dc67b65cdd56827cc7)
 ----------
 - Clojure-script / reagent
 - Reagent: Helps you write frontend in react using clojurescript

@@ -1,0 +1,139 @@
+Story 1: Create a landing page for Redis Implementation
+
+Requirements: Server that would visually showcase the number of 
+ - enqueued jobs
+ - scheduled jobs
+ - periodic jobs
+ - dead jobs
+
+Different ways of writing Goose UI involves:
+
+Approach 1
+-------
+- stringified html returned as response
+- inorder to have dynamic data, the html would be broken down at proper sections to capture the data.
+- how to render an image (goose logo)?
+- how to render javascript?
+	embed js in the stringified html itself 
+- reuse of the components like navbar?
+	can't be reused, code have to be reimplemented everytime
+- how to change the ui theme? (not so important now)
+    create different components with same code but different colors.
+
+cons
+----
+- difficult to parse HTML while coding
+- appending dynamic data becomes difficult
+- components reuse becomes difficult
+- rendering javascript?
+	- inline js since the html is string value
+	- external js
+		- host the js somewhere and pass the link in the script tag
+		- while serving js from the same server, use static file loading and load the js file.
+	
+Approach 2
+--------
+- Different HTML file
+- Since the file is directly loaded, adding dynamic data to the file if not possible unless a template engine is used.
+
+- cons
+-----
+ - no direct way of adding dynamic data into the index.html since the entire file in rendered as it is.
+
+- Hence we would require some sort of templating engine for this 
+	-selmer
+	-hiccup
+- we would write the code in the clojure with the dynamic data and before returing response to the client convert into html.
+
+
+Approach 3
+-------
+- Hiccup + css + js/cljs
+
+  Hiccup
+  -------
+- Hiccup does not have any dependency, so its light weight
+- UI can be broken down to reusable components
+- Easy of adding dynamic data
+
+ cljs
+ ----
+- use of cljs will enable to write idiomatic clojure code instead of vanilla js (which will exist most likely in resources folder i.e outside of src).
+- brings a lot of dependency like google closure compiler for making optimisations, thus increasing the size of Goose
+
+- vanilla js
+--------------
+- Some of js usage involves?
+	- Popup dialog when deleting job/s 
+	- Store the selected filter
+		(filters can be appended in the url to avoid storing state in the app)
+	- Submit/Apply a filter
+		- Send an API request
+	- Delete multiple jobs
+	- Prioritise multiple jobs
+	- Replay a job
+	- Add a limit
+- No additional dependency when using vanilla js. 
+
+
+cons
+----
+- Can lead to more fundamental html,css and js code
+- A lot of logic(javascript) functions will lie in the .js which is outside of src. 
+- Handling local/global state becomes difficult like "theme"
+- Framework like reagent will automatically re-render on component change, where as incase of hiccup the state updates needs to be manually handled or reload the page.
+
+
+Approach 4
+----------
+- Clojure-script / reagent
+- Reagent: Helps you write frontend in react using clojurescript
+		   Write efficient components using cljs functions & data with hiccup like syntax
+- Easier to write/maintain frontened with state and data that changes frequently and require a lot of re-rendering
+
+
+	Pros of using reagent over hiccup
+	------
+	- Reagent uses automatic re-rendering of components when the associated data is changed, whereas hiccup requires manual intervention. 
+	- Makes the code more verbose.
+	- Efficient dom updates and access to react ecosystem.
+
+  Cons
+  ----
+  - lot of dependencies
+  		- reagent
+  		- cljs/react
+  		- cljs/react-dom 
+  		- clojurescript
+  		- google-closure-compiler
+
+Misc
+-----
+
+The decision of hiccup vs reagent lies in how many times state changes happen, how much state updates/ dynamic changes happen in Goose. Currently goose contain the following state update
+
+- In enqueued page
+	- apply filter on type, id, execute-fn-symbol
+	- delete 1/multiple job/s
+	- prioritise 1/multiple job/s
+
+- In Scheduled page
+	- apply filter on type, id, queue, execute-fn-symbol
+	- delete 1/multiple job/s
+	- prioritise 1/multiple job/s
+
+- In periodic page
+	- apply filter by job's name
+	- delete 1/multiple jobs
+
+- In dead page
+	- apply filter by job's type, id, queue, execute-fn-symbol
+	- delete 1/multiple job/s
+	- replay 1/multiple job/s
+
+Persist filters & API limit across page re-render: Append the filter type and filter value with API limit in the url
+For seleting multiple jobs to perform an action would require javascript or any framework that supports it.
+
+Decision
+--------
+- Hiccup + JS?

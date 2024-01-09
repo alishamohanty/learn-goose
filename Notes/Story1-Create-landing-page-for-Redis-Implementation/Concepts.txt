@@ -1,0 +1,25 @@
+CONCEPTS and QUESTIONS
+----------------------
+
+- What is reagent?
+   - Enables writing React using Clojurescript
+   - We write our programs in clojurescript. Tools like Figwheel or leiningen builds the clojurescript to html, javscript and makes it available to be used for our server.
+
+- What is reframe?
+	- Re-frame is a ClojureScript framework for building client-side web applications in a functional and reactive style.
+	- Leverages Reagent (a minimalistic React wrapper) for its view layer, but adds a structured and disciplined approach to managing state and side-effects.
+	- Re-frame organizes an application into a unidirectional data flow, which makes state changes predictable and understandable.  - It's well-suited for complex applications with many moving parts, offering a robust approach to managing app state and behavior.
+
+- What is hiccup?
+	- Represents Html in Clojure
+
+- What is clojurescript?
+	
+	 - It is a compiler that compiles clojure into javascript.
+	 - Clojurescript compiles clojure to js in browser or node
+	 - Uses Google's Closure Compile Tool to optimise the converted js
+
+- What is the use of clojurescript in Goose?
+  - Ability to write javscript in clojure language.
+- Does the landing page require javascript? Not right now.
+  - No

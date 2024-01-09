@@ -1,0 +1,5 @@
+1. Finalise which languages to write the console UI (done) - hiccup + js
+2. Implement the static UI (done)
+3. Make the UI read data from broker (done)
+4. Model/Architect the the implementation 
+5. Move hardcoded values to more dynamic values

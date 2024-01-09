@@ -1,6 +1,20 @@
 TODOS:
 -------
-
+Q. How periodic jobs are implemented?
+Q. What is heartbeat?
+Q. How RabbitMQ is implemented with Goose?
+  - What are channels?
+  - Why 
+Q. Can you explain Goose, end to end?
+ - From client to different brokers to standardization of response given by different brokers.
+ - What does the worker does?
+ - How many threads run in goose by the workers and how much parallelization is handled by goose?
+Q. Why cron.clj is not in API for redis? 
+Q. Why do u say that goose does not have a default queue?
+Q. What does a hearbeat signify?
+Things to do to understand Goose in a better way:
+ - Check the evolution of a file or the project overall
+ 
 
 To be Figure out (by me)
 ------------------------

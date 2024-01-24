@@ -1,5 +1,51 @@
-1. Finalise which languages to write the console UI (done) - hiccup + js
+Tasks
+-----
+
+1. Finalise which languages to write the console UI (done) - hiccup + js (done)
 2. Implement the static UI (done)
 3. Make the UI read data from broker (done)
-4. Model/Architect the the implementation 
-5. Move hardcoded values to more dynamic values
+4. Model/Architect the the implementation
+- Rewrite commit history (done)
+
+5. Development environment (done)
+- What components should be loaded so that the UI can be re-rendered?
+	- Easily recompile goose's code into the server? (user clojure-tools.namespace)
+- Write a function to restart the server (done)
+- Find a way to remove browser's cached stylesheets (update in the browser's network tab to disable cache)
+
+
+Ongoing
+-------
+Tests
+-----
+-> Handler dispatcher at broker
+-> wrap-prefixed-route-middleware
+-> wrap-remove-route-prefix
+-> Home page handler
+	- Redis homepage fetches correct data
+	- The view have the css and the image
+
+High level
+-----------
+- app-handler
+	- when request does not contain a route-prefix
+	- when Broker details are not passed
+	- when app-name is not passed (Where to set the default app-name?)
+
+- Handler function should dispatch to Redis when the broker is Redis
+- "/" renders index-page
+
+Unit tests
+----------
+- wrap-prefixed-route
+- wrap-remove-route-prefix
+
+View?
+----
+Should the view be tested?
+
+
+Soon
+----
+- Error handling
+- Write function doc strings

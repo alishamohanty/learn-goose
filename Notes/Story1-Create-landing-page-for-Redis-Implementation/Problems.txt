@@ -1,0 +1,55 @@
+Issue: wrap-resource does not load the file when rendering the UI
+
+Possible problem: 
+- the resources dir in not in the classpath when the client is serving the request
+
+Why it worked earlier?
+- The server was spinned up from goose hence the resources directory would come in the class path.
+- Hence the style.css and the image.logo would come while loading the server.
+
+
+Situations/Observations
+----------
+- If deps.edn has "resources/public" added then the contents are available to the project
+  - (io/resource css/style.css) will work 
+  - (wrap-resource "") will lead the static files to be loaded.
+
+
+It works
+----------
+1. Method 1: The resource is served on the specific routes itself
+
+req uri:                                                  /goose/console/css/style.css
+the resource is served (in the routes, after uri trim)    /css/style.css 
+
+Hence the web-page works.
+
+
+Understanding
+-------------
+- When we use (wrap-resource handler "folder-name") then, static files are served from resources/folder-name.
+- If the request goes like css/style.css + (wrap-resource handler "file-name") then the request is to goes to fetch the file from resources/file-name/css/style.css. Thats how the request works to serve static files.
+
+- So what should I do?
+- I should be able to trick wrap-resource so that it thinks the request has come "/css/style.css" instead of "goose/console/css/style.css" so that it serves the file from "/css/style.css"
+
+
+What is happening in the function (wrap-resource)?
+-----------------
+- wrap-resource: Whether a request map matches a static resource?
+	- css/style.css: Match found - return the file.
+	- /: No match found - Request map is passed onto the handler
+
+
+	So, when the request is sent /goose/console/css/style.css  -> The file exist in css/style.css
+		The wrap resource would acctually search in root-path of the file and send its content
+		But the path in the URL is not correct. So we want to remove the goose/console bit from the url to get to the location of the file in the server and return the file. 
+
+
+- What is the use of wrap-resource?
+  - in serving static file contents
+
+Solution: 
+---------
+We need to add "resources" dir of goose in the classpath. Inorder to do so, we update the {:paths ["src" "resources"]}. Now "resources" folder came in the classpath. In-order to check for the static resources in the url to match the directory structure, we add (wrap-resources "public") since all the css and images are in the public directory. And in the url we remove the route-prefix to make route-resources believe that the uri searching in path(like css/style.css even if the route is <route-prefix>/css/style.css) and hence gets the path.
+

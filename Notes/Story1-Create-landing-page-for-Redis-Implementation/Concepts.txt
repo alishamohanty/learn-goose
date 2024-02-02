@@ -23,3 +23,10 @@ CONCEPTS and QUESTIONS
   - Ability to write javscript in clojure language.
 - Does the landing page require javascript? Not right now.
   - No
+
+Akshat's view of the story
+--------------------------
+- Goose won't have any server
+- Goose will declare a handler which be the main handler[to be used by the routes].
+- The views won't be dispatched rather the handler will be dispatched based on the broker
+- Arguments received as a part of handler involves the producer/broker and the Appname.

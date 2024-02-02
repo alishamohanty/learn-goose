@@ -14,36 +14,24 @@ Tasks
 - Find a way to remove browser's cached stylesheets (update in the browser's network tab to disable cache)
 
 
-Ongoing
--------
-Tests
------
+6. Tests (done)
+--------
 -> Handler dispatcher at broker
--> wrap-prefixed-route-middleware
--> wrap-remove-route-prefix
 -> Home page handler
 	- Redis homepage fetches correct data
 	- The view have the css and the image
 
-High level
------------
-- app-handler
+-> app-handler (handled in specs)
 	- when request does not contain a route-prefix
 	- when Broker details are not passed
 	- when app-name is not passed (Where to set the default app-name?)
 
 - Handler function should dispatch to Redis when the broker is Redis
-- "/" renders index-page
-
-Unit tests
-----------
-- wrap-prefixed-route
-- wrap-remove-route-prefix
+- "/" renders index-page 
 
 View?
 ----
-Should the view be tested?
-
+Should the view be tested? (not required as long as the functionality is tested)
 
 Soon
 ----

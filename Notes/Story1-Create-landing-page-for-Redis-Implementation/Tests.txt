@@ -1,0 +1,26 @@
+What to test?
+------------
+
+1. Write specs client-opts in for the app-handler (done)
+2. For "/" - It contains css, -logo.png request (done)
+3. For "" - route to "/" (done)
+
+4. ".css" file is loaded (done)
+5. ".png" file is loaded  (done)
+
+6. Test app handler with correct opts (done)
+7. Test app handler with incorrect opts (specs test cover this)
+
+8. Dispatching the handler to redis broker (done)
+9. The jobs-size fn should construct correct structure of different key and value entities. (done)
+
+10. Not found test (done)
+
+Todo
+-----
+- Make the add-jobs test more efficient and good looking not like some jugad (done)
+- Separate tests into different sections (done)
+- Do we want to assert on the arguments received when stubbing? (can skip, if required in future, can add)
+- Test app-handler with incorrect args (not required. this is guarded by specs)
+- Add specs for the client-opts. Should it be called client-opts or console-opts or console-client-opts? (client-opts is fine)
+- Assert on the navbar-view (to be made in sperate PR so that if it gets heavy, can be discarded)

@@ -1,0 +1,51 @@
+Tests
+------
+What are the exisiting tests in Goose?
+
+1. Specs test (specs_test.clj): 
+	- Checks the client functions like
+			- perform-in-sec
+			- perform-every
+			etc
+	comply with correct arguments and what happens when incorrect args are sent.
+	- Tests broker functions with valid and invalid specs passed.
+	- Tests worker functions for correct args
+	- Statsd function's opts
+
+2. test_utils.clj:
+	- Fixture for Redis
+	- Fixture for RMQ
+	- Definitions for test environement like 
+		- urls
+		- redis-producer
+		- redis-consumer
+		- etc
+
+3. worker_test.clj
+	- checks what if metrics plugin is nil
+
+4. test_runner.clj
+	test-runner is a small library for discovering and running tests in projects using native Clojure deps (i.e, those that use only Clojure's built-in dependency tooling, not Leiningen/boot/etc
+
+
+5. Specs tests
+
+- It conforms to the validity of the arguments
+
+Some functions conformed with their spec in code implementations
+Ex: - rmq-producer
+	- rmq-broker
+	- statsd-new
+	- worker-start
+
+ - What is the use `fdef` <fn-name> defined in the broker?
+conforms the functions with arguments and return type.
+
+- All the client-apis fn like the c/perform-async etc are instrumented in tests only. The actual endpoint does not contain the spec validation.
+- They should be ideally used in development/staging environement and should be avoided in production env.
+
+- why some functions are using assert-fn in the implementation, where as client-fns are tested only at the surface level?
+
+- client-fns are not validated in api for performance improvements.
+- other function like worker/start, rmq-consumer are using single-use initialisation that have manual assertion so that an application can fail at start-time (following the principle of fail fast).
+

@@ -1,0 +1,38 @@
+This file will contain all the issues or areas I took more than 15mins to solve it:
+
+
+
+
+
+-Rewriting the app-handler to take request and client opts separately.
+------------------------------------------------------------------------
+
+Issue: How would the app handler be called in the client handler, if it takes 2 args. This should not break the middleware chain?
+
+Solution: The client's handler should define a function that takes only one arg, i.e a request. 
+So,
+
+(defroutes goose-routes
+           (context "/goose/console" []
+             (partial console/app-handler {:broker       (redis/new-producer redis/default-opts)
+                                           :app-name     "Aal's app"
+                                           :route-prefix "/goose/console"}))
+           (route/not-found "<h1>Page not found </h1>"))
+
+And app-handler will be:
+
+(defn app-handler [client-opts req]
+  ((-> handler
+       wrap-remove-route-prefix) (merge req client-opts)))
+
+- Loading test/goose/test_utils.clj... 
+Execution error (ConnectException) at sun.nio.ch.Net/pollConnect (Net.java:-2).
+Connection refused
+--------------------------------------------------
+Rabbit MQ server was not up, hence the connection was getting rejected. 
+
+
+- wcar in carmine fetches actual data given invalid connection/broker details
+------------------------------------------------------------------------------
+
+wcar uses default redis connection defined in the library which is used given invalid connection

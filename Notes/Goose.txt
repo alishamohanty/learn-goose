@@ -148,6 +148,13 @@ Dead
 	          :first-failed-at 1701344365468,
 	          :retry-count 1,
 	          :retry-at 1701344433359}}
+- What is orphaned job?
+  A job that was abruptly halted while being executed.
+  The job will exist in dead-worker's preservation queue.
+
+
+  Process set (per queue): Contains all working/active worker-ids  
+  In-progress queue/ Preservation queue (per worker): Contains jobs that the worker is executing.
 
 Questions
 ---------

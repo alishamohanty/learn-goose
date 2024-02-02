@@ -75,7 +75,6 @@ Approach 3 (https://github.com/alishamohanty/goose/commit/c6f1dbd16495834566443c
 	- Add a limit
 - No additional dependency when using vanilla js. 
 
-
 cons
 ----
 - Can lead to more fundamental html,css and js code
@@ -136,4 +135,4 @@ For seleting multiple jobs to perform an action would require javascript or any 
 
 Decision
 --------
-- Hiccup + JS?
+- Hiccup + JS

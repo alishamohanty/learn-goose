@@ -1,0 +1,78 @@
+URL
+---
+/enqueued/<queue-name>
+
+API
+---
+- List all queues
+	- Each queue selection, redirects to same page with 10 enqueued jobs of queue type
+
+- List all enqueued jobs from the first queue
+- Perform (prioritise/delete) on mutiple jobs API
+
+
+UI components
+---
+-	Top section
+-	Sidebar
+-	Fixed header
+-	Table
+-	Modals
+-	Bottom section (Purge button)
+
+
+Functionality of UI Components
+---
+	- Top Section: Static Enqueued Jobs title
+
+	- Sidebar: 
+		- Should be Scrollable
+		- Hovering on queue, should highlight the queue name
+		- Clicking on the component should redirect to same page with diff queue name
+
+	- Fixed header:
+		- Pagination API
+		- Filtering API: Redirects to same page with fewer data
+			- Filter text field
+			- API Limit Field
+			- Apply Button
+			- Clear button
+
+	- Table: Select multiple jobs and perform an action
+			Each cell should be scrollable when text size increases a certain size
+
+	- Modals: On destructive action, warn the user through a modal view.
+	- Bottom page: Modal open when button is clicked
+
+Texts to be Hightlighted(dynamic)
+---
+-	"enqueued" in the nav bar
+- "<queue-name>" in the LHS of the navbar
+
+Data Fetching
+---
+- All the queues
+	/queues
+
+- All the enqueued jobs in the table
+	/enqueued with start and stop
+
+
+Stages of the story (~ 10 to 14 days)
+---
+1. Build the entire view of enqueued page. 
+	(Most of the components would not be fully functional)
+
+2. Make each component fully functional in the following sequence:
+	1. Sidebar
+	2. Table view (without select being functional)
+	3. Fixed header (ability to filter enqueued jobs)
+	4. Modals for destructive actions
+	5. Ability to select multiple jobs and perform actions
+
+3. Testing
+	 Unit and Integration testing
+
+Tentative timeline (5 Feb to 9)
+- Wrap up 1 and until 2.2 with testing
+
